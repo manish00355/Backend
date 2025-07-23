@@ -11,7 +11,7 @@ import fs from 'fs';
     });
     
     // Upload an image
-     const uploadOnCloudinar = async (localFilePath)=>{
+     const uploadOnCloudinary = async (localFilePath)=>{
         try{
             if(!localFilePath) return null
             // upload on cloudinary
@@ -30,4 +30,4 @@ import fs from 'fs';
         }
      }
 
-     export {uploadOnCloudinar}
+     export {uploadOnCloudinary}

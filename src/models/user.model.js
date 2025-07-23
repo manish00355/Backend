@@ -60,7 +60,7 @@ const userSchema = new Schema(
 // arrow fn cant be use in pre
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next()
-    this.password=bcrypt.hash(this.password,10)
+    this.password= await bcrypt.hash(this.password,10)
     next()
     // har bar password encypt nhi karna jab bola ho tbhi karna
 })
