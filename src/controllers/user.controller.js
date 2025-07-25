@@ -224,9 +224,95 @@ if(incomingRefreshToken !== user?.refreshToken) {
   )
 })
 
+  const changeCurrentPassword = asyncHandler(async (req,res)=>{
+    const{oldPassword , newPassword}= req.body
+     const user = await User.findById(  req.user?._id)
+    const isPasswordCorrect= await user.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordCorrect){
+
+        throw new ApiError(400,"invalid old Password")
+    }
+
+    user.password = newPassword
+   await user.save({ValidateBeforeSave:false})
+
+   return res.
+   status(200)
+   .json(
+    new ApiResponse(200,{},"password change succesfully")
+   )
+  })
+ 
+const getCurrentUser = asyncHandler(async(req,res)=>{
+    return res.status(200)
+    .json(200, req.user ,"current user fetched successfully")
+})
+
+const updateAccountDetails = asyncHandler(async(req,res)=>{
+    const {fullname,email}= req.body
+
+    if(!fullname||!email){
+        throw new ApiError(400 ,"all fields are required")
+
+    }
+
+    User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            // mongoDB opeator
+            $set:{
+                fullname,
+                email : email
+            }
+        },
+        {new:true}
+    ).select("-password")
+
+    return res.status(200)
+    .json(
+        new ApiResponse(200 ,{},"Account details updated successfully")
+    )
+})
+   // files updation -> multer
+  const updateUserAvatar = asyncHandler(async(req, res)=>{
+  const avatarLocalPath =    req.files?.path
+
+  if(!avatarLocalPath){
+    throw new ApiError(400,"Avatar file is missing")
+  }
+  const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+  if(!avatar.url){
+    throw new ApiError(400,"Avatar file is misiing")
+  }
+// upade user avatar 
+
+const user = await User.findByIdAndUpdate(
+    req.user?._id ,
+    {
+        $set:{
+            avatar:avatar.url
+        }
+    },
+    {new:true}
+).select("-password")
+  
+
+return res.status(200).json(
+    new ApiResponse(200,user,"User avatar updated successfully")
+)
+
+
+  })
+
 
 export {registerUser,
         loginUser,
         logoutUser,
-        refreshAcessToken
+        refreshAcessToken,
+        changeCurrentPassword,
+        getCurrentUser,
+        updateAccountDetails,
+        updateUserAvatar,
 }
